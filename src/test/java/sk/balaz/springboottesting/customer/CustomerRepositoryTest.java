@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+//https://assertj.github.io/doc/
 @DataJpaTest
 class CustomerRepositoryTest {
 
@@ -26,7 +27,7 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void Add() {
+    void itShouldSaveCustomer() {
 
         //given - set up of something
         UUID id = UUID.randomUUID();

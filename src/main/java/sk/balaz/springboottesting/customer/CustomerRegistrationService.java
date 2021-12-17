@@ -14,6 +14,14 @@ public class CustomerRegistrationService {
     }
 
     public  void registerNewCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
+        // 1. phone number is taken
 
+        //2. if taken lets check if belongs to same customer
+
+        //2.1 if yes return
+
+        //2.2 throw an exception
+
+        //3. save customer
     }
 }
