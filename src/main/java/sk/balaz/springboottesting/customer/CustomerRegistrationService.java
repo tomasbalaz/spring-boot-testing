@@ -27,7 +27,9 @@ public class CustomerRegistrationService {
         //3. save customer
 
         String phoneNumber = request.getCustomer().getPhoneNumber();
+
         Optional<Customer> customerOptional = customerRepository.selectCustomerByPhoneNumber(phoneNumber);
+
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
             if (customer.getName().equals(request.getCustomer().getName())) {
