@@ -12,9 +12,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 class CustomerRegistrationServiceTest {
 
@@ -53,5 +55,31 @@ class CustomerRegistrationServiceTest {
         then(customerRepository).should().save(customerArgumentCaptor.capture());
         Customer customerArgumentCaptorValue = customerArgumentCaptor.getValue();
         assertThat(customerArgumentCaptorValue).isEqualTo(customer);
+    }
+
+    @Test
+    void itShouldNotSaveCustomerWhenCustomerExists() {
+        //given a phone number and customer
+        String phoneNumber = "00099";
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer(id, "Abel", phoneNumber);
+
+        // ... a request
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
+
+        // ... no customer with phone number passed
+        given(customerRepository.selectCustomerByPhoneNumber(phoneNumber))
+                .willReturn(Optional.of(customer));
+
+        //when
+        underTest.registerNewCustomer(request);
+
+
+         //1. option
+        // then(customerRepository).should(never()).save(any());
+
+        //2. option
+        then(customerRepository).should().selectCustomerByPhoneNumber(phoneNumber);
+        then(customerRepository).shouldHaveNoMoreInteractions();
     }
 }
