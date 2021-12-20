@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CustomerRegistrationService {
@@ -36,6 +37,10 @@ public class CustomerRegistrationService {
                 return;
             }
             throw new IllegalStateException(String.format("phone number [%s] is taken", phoneNumber));
+        }
+
+        if(request.getCustomer().getId() == null) {
+            request.getCustomer().setId(UUID.randomUUID());
         }
 
         customerRepository.save(request.getCustomer());
