@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -67,7 +68,7 @@ class CustomerRegistrationServiceTest {
         // ... a request
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
 
-        // ... no customer with phone number passed
+        // ... an existing customer is returned
         given(customerRepository.selectCustomerByPhoneNumber(phoneNumber))
                 .willReturn(Optional.of(customer));
 
@@ -76,10 +77,36 @@ class CustomerRegistrationServiceTest {
 
 
          //1. option
-        // then(customerRepository).should(never()).save(any());
+        // then
+        // (customerRepository).should(never()).save(any());
 
         //2. option
         then(customerRepository).should().selectCustomerByPhoneNumber(phoneNumber);
         then(customerRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void itShouldThrowWhenPhoneNumberIsTaken() {
+        //given a phone number and customer
+        String phoneNumber = "00099";
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer(id, "Abel", phoneNumber);
+        Customer customerTwo = new Customer(id, "John", phoneNumber);
+
+        // ... a request
+        CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
+
+        // ... no customer with phone number passed
+        given(customerRepository.selectCustomerByPhoneNumber(phoneNumber))
+                .willReturn(Optional.of(customerTwo));
+
+        //when
+
+        //then
+        assertThatThrownBy(() -> underTest.registerNewCustomer(request))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(String.format("phone number [%s] is taken", phoneNumber));
+
+        then(customerRepository).should(never()).save(any(Customer.class));
     }
 }
