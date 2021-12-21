@@ -3,14 +3,18 @@ package sk.balaz.springboottesting.customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 //https://assertj.github.io/doc/
-@DataJpaTest
+@DataJpaTest(
+        properties = "spring.jpa.properties.javax.persistence.validation.mode=none"
+)
 class CustomerRepositoryTest {
 
     @Autowired
@@ -47,5 +51,36 @@ class CustomerRepositoryTest {
 
                     assertThat(c).isEqualToComparingFieldByField(customer);
                 });
+    }
+
+    @Test
+    void itShouldNotSaveCustomerWhenNameIsNull() {
+        //given - set up of something
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer(id, null, "00000");
+
+        //when - when something is called
+        //underTest.save(customer);
+
+        //then - assertion
+        assertThatThrownBy(() -> underTest.save(customer))
+                .hasMessageContaining("not-null property references a null or transient value : sk.balaz.springboottesting.customer.Customer.name")
+                .isInstanceOf(DataIntegrityViolationException.class);
+        //assertThat(underTest.findById(id)).isNotPresent();
+    }
+
+    @Test
+    void itShouldNotSaveCustomerWhenPhoneNumberIsNull() {
+
+        //given - set up of something
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer(id, "tester", null);
+
+        //when - when something is called
+        //then - assertion
+
+        assertThatThrownBy(() -> underTest.save(customer))
+                .hasMessageContaining("not-null property references a null or transient value : sk.balaz.springboottesting.customer.Customer.phone")
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 }
