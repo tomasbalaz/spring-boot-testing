@@ -13,9 +13,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 class PaymentServiceTest {
 
@@ -80,5 +83,47 @@ class PaymentServiceTest {
         assertThat(paymentArgumentCaptorValue)
                 .isEqualToIgnoringGivenFields(paymentRequest.getPayment(),"customerId");
         assertThat(paymentArgumentCaptorValue.getCustomerId()).isEqualTo(customerId);
+    }
+
+    @Test
+    void itShouldThrowWhenCardIsNotCharged() {
+
+        //given
+        UUID customerId = UUID.randomUUID();
+
+        // ... Customer exists
+        given(customerRepository.findById(customerId))
+                .willReturn(Optional.of(mock(Customer.class)));
+
+        // ... Payment request
+        PaymentRequest paymentRequest = new PaymentRequest(
+                new Payment(
+                        null,
+                        null,
+                        new BigDecimal("100.00"),
+                        Currency.USD,
+                        "card123xx",
+                        "Donation"
+                )
+        );
+
+        // ... Card is charged successfully
+        given(cardPaymentCharger.chargeCard(
+                paymentRequest.getPayment().getSource(),
+                paymentRequest.getPayment().getAmount(),
+                paymentRequest.getPayment().getCurrency(),
+                paymentRequest.getPayment().getDescription()
+        )).willReturn(new CardPaymentCharge(false));
+
+        //when
+        //then
+        assertThatThrownBy(() ->
+                underTest.charge(customerId, paymentRequest))
+                .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("Card not debited for customer %s", customerId);
+
+
+        then(paymentRepository).should(never()).save(any(Payment.class));
+
     }
 }
