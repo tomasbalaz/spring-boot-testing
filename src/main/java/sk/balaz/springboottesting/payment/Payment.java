@@ -41,6 +41,34 @@ public class Payment {
         this.description = description;
     }
 
+    public void setCustomerId(UUID customerId) {
+        this.customerId = customerId;
+    }
+
+    public Long getPaymentId() {
+        return paymentId;
+    }
+
+    public UUID getCustomerId() {
+        return customerId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public String toString() {
         return "Payment{" +
