@@ -3,6 +3,7 @@ package sk.balaz.springboottesting.payment.stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.net.RequestOptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sk.balaz.springboottesting.payment.CardPaymentCharge;
 import sk.balaz.springboottesting.payment.CardPaymentCharger;
@@ -19,6 +20,13 @@ public class StripeService implements CardPaymentCharger {
             .setApiKey("sk_test_4eC39HqLyjWDarjtT1zdp7dc")
             .build();
 
+    private final StripeApi stripeApi;
+
+    @Autowired
+    public StripeService(StripeApi stripeApi) {
+        this.stripeApi = stripeApi;
+    }
+
     @Override
     public CardPaymentCharge chargeCard(String cardSource,
                                         BigDecimal amount,
@@ -32,7 +40,7 @@ public class StripeService implements CardPaymentCharger {
         params.put("description", description);
 
         try {
-            Charge charge = Charge.create(params, requestOptions);
+            Charge charge = stripeApi.create(params, requestOptions);
             return new CardPaymentCharge(charge.getPaid());
         } catch (StripeException e) {
             throw new IllegalStateException("Cannot make stripe charge", e);

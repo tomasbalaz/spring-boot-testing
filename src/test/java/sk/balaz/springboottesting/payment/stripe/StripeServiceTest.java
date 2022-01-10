@@ -2,6 +2,8 @@ package sk.balaz.springboottesting.payment.stripe;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import sk.balaz.springboottesting.payment.Currency;
 
 import java.math.BigDecimal;
@@ -10,9 +12,13 @@ class StripeServiceTest {
 
     private StripeService underTest;
 
+    @Mock
+    private StripeApi stripeApi;
+
     @BeforeEach
     void setUp() {
-        underTest = new StripeService();
+        MockitoAnnotations.openMocks(this);
+        underTest = new StripeService(stripeApi);
     }
 
     @Test
@@ -25,6 +31,8 @@ class StripeServiceTest {
 
         //when
         underTest.chargeCard(cardSource, amount, usd, donate);
+
         //then
+
     }
 }
