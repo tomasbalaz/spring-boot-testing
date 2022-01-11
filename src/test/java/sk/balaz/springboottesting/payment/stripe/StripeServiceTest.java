@@ -1,4 +1,4 @@
-package sk.balaz.springboottesting.stripe;
+package sk.balaz.springboottesting.payment.stripe;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
