@@ -3,6 +3,8 @@ package sk.balaz.springboottesting.utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,38 +17,18 @@ public class PhoneNumberValidatorTest {
         underTest = new PhoneNumberValidator();
     }
 
-    @Test
-    void itShouldValidatePhoneNumber() {
+    @ParameterizedTest()
+    @CsvSource({
+            "+447000000000,true",
+            "+44700000000084848,false",
+            "44700000000084848,false"
+    })
+    void itShouldValidatePhoneNumber(String phoneNumber, boolean expected) {
         //given
-         String phoneNumber = "+447000000000";
         //when
         boolean isValid = underTest.test(phoneNumber);
 
         //then
-        assertThat(isValid).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should fail when length is bigger than 13")
-    void itShouldValidatePhoneNumberWhenIncorrectAndHasLengthBiggerThan13() {
-        //given
-        String phoneNumber = "+447000000000884848";
-        //when
-        boolean isValid = underTest.test(phoneNumber);
-
-        //then
-        assertThat(isValid).isFalse();
-    }
-
-    @Test
-    @DisplayName("Should fail when it does not start with +")
-    void itShouldValidatePhoneNumberWhenDoesNotStartWithPlusSign() {
-        //given
-        String phoneNumber = "447000000000884848";
-        //when
-        boolean isValid = underTest.test(phoneNumber);
-
-        //then
-        assertThat(isValid).isFalse();
+        assertThat(isValid).isEqualTo(expected);
     }
 }
